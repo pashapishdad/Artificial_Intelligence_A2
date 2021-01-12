@@ -10,6 +10,8 @@ import math
 import pandas as pd
 from collections import Counter
 import numpy as np
+import copy
+from sklearn.metrics import classification_report
 
 
 # %%
@@ -132,7 +134,7 @@ def vocabulary(text):
     return vocab_dict
 
 
-def freq_prob_types(vocab_dict, df, year):
+def freq_prob_types(vocab_dict, df, year, file_name):
     # # make a dictionary out of vocabulary set and set the keys to 0.5 as smoothing
     # vocab_dict = {x:0.5 for x in vocab}
 
@@ -181,7 +183,8 @@ def freq_prob_types(vocab_dict, df, year):
 
 
 def classifier(string, post_types_stats):
-    string = strip_char(string)
+    # string = strip_char(string)
+    string = re.sub('[:.,?!;\[\]“”"\'’()]', '', string)
     string = string.lower()
     words_list = string.split()
     total_titles = sum([post_types_stats[post_type][2] for post_type in post_types_stats.keys()])
@@ -230,7 +233,7 @@ if __name__ == "__main__":
 
     voc = vocabulary(text_s)
 
-    post_types_stats = freq_prob_types(voc, df, 2018)
+    post_types_stats = freq_prob_types(voc, df, 2018, 'model-2018.txt')
 
     corrects = 0
 
@@ -256,9 +259,24 @@ if __name__ == "__main__":
     l = [line.rstrip('\n') for line in open(s_path)]
     # for line in s:
     #     l.append(line)
+    voc_stop_words = copy.deepcopy(voc)
     for elem in l:
-        voc.pop(elem, None)
+        voc_stop_words.pop(elem, None)
+    post_types_stats = freq_prob_types(voc_stop_words, df, 2018, 'stopword-model.txt')
 
+    corrects = 0
 
-
-
+    with open('stopword-result.txt', 'a') as f:
+        for (i, row) in enumerate(df_year_2019.iterrows()):
+            _, row = row
+            title = row['Title']
+            scores = classifier(title, post_types_stats)
+            prediction = max(scores, key=scores.get)
+            result = 'right' if prediction == row['Post Type'] else 'wrong'
+            if result == 'right':
+                corrects += 1
+            f.write('%d  %s  %s  ' % (i + 1, title, prediction))
+            for key in scores:
+                f.write('%s:  %f  ' % (key, scores[key]))
+            f.write('%s  %s\n' % (row['Post Type'], result))
+    print(corrects)
