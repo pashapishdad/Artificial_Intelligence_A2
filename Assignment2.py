@@ -220,7 +220,7 @@ def performance(post_types_stats, file_name=""):
 
 
 if __name__ == "__main__":
-    f_path = '/Users/pasha/PycharmProjects/Assignment2/hns_2018_2019.csv'
+    f_path = 'hns_2018_2019.csv'
     df = pd.read_csv(f_path)
 
     # extract the year from "created at" column
@@ -316,24 +316,6 @@ if __name__ == "__main__":
     post_types_stats_t_25 = freq_prob_types(voc_words_frequent_25, df, 2018)
     accuracy_t_25, precision_t_25, recall_t_25, f1score_t_25, corrects_t_25 = performance(post_types_stats_t_25)
 
-    # x = [1,2,3,4,5]
-    # plt.figure()
-    # plt.subplot(1,2,1)
-    # plt.plot(x, [report['accuracy']]*5, marker = '*', label='accuracy')
-    # plt.subplot(1,2,2)
-    # plt.plot(x, [report['accuracy']]*5, marker = '*', label='accuracy')
-    # plt.legend(loc='center left', bbox_to_anchor=(1,.5))
-    # plt.figure()
-    # plt.subplot(1,2,1)
-    # plt.plot(x, [report['accuracy']]*5, marker = '*', label='accuracy')
-    # plt.subplot(1,2,2)
-    # plt.plot(x, [report['accuracy']]*5, marker = '*', label='accuracy')
-    # plt.legend(loc='center left', bbox_to_anchor=(1,.5))
-    # plt.tight_layout()
-    # plt.subplot(1,2,1)
-    # plt.xticks(ticks=x)
-    # list_of_reports = report*5
-    # list_of_reports = [report]*5
     accuracies = []
     accuracies.append(accuracy_base)
     accuracies.append(accuracy_f_1)
@@ -343,14 +325,24 @@ if __name__ == "__main__":
     accuracies.append(accuracy_f_20)
     x = [len(voc), len(voc_words_frequency_1), len(voc_words_frequency_5), len(voc_words_frequency_10),
          len(voc_words_frequency_15), len(voc_words_frequency_20)]
-    # accuracies = [rep['accuracy'] for rep in list_of_reports]
 
-    # precisions = [rep['weighted avg']['precision'] for rep in list_of_reports]
-
-    # recalls = [rep['weighted avg']['recall'] for rep in list_of_reports]
-
-    # f1scores = [rep['weighted avg']['f1-score'] for rep in list_of_reports]
     plt.figure()
     plt.subplot(1, 2, 1)
-    plt.plot(x, accuracies, marker='*', label='accuracy')
+    # plt.xticks(ticks=x)
+    # fig, ax = plt.subplots(constrained_layout=True)
+    x_temp = [0, 1, 2, 3, 4, 5]
+    plt.xticks(ticks=x_temp, labels=x, rotation=90)
+    # axes1 = plt.gca()
+    # axes2 = axes1.twiny()
+
+    # axes2.set_xticks([20,15,10,5,1,0])
+
+    # axes1.set_xlabel("x-axis 1")
+    # axes2.set_xlabel("x-axis 2")
+    # secax = ax.secondary_xaxis('top', functions=(deg2rad, rad2deg))
+    # secax.set_xlabel('angle [rad]')
+    plt.scatter(x_temp, accuracies, marker='*', label='accuracy')
+    plt.xlabel('remaining words in the vocabulary')
+    plt.ylabel('frequency')
+    plt.tight_layout()
     # plt.plot(x, precisions, marker = 'o', label='precision')
