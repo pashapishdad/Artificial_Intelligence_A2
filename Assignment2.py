@@ -6,13 +6,11 @@ Created on Wed Jun 10 15:49:55 2020
 @author: pasha
 """
 import re
-import math
 import pandas as pd
 from collections import Counter
 import numpy as np
 import copy
 from sklearn.metrics import classification_report
-from sklearn.metrics import precision_recall_fscore_support
 import matplotlib.pyplot as plt
 
 
@@ -151,7 +149,7 @@ def classifier(string, post_types_stats):
     return scores
 
 
-def vocab_freqency(voc, freq):
+def vocab_frequency(voc, freq):
     voc_words_frequency = copy.deepcopy(voc)
     l_freq = []
     for word in voc.keys():
@@ -168,9 +166,10 @@ def vocab_freqency(voc, freq):
 def vocab_frequent(voc, percent):
     voc_words_frequent = copy.deepcopy(voc)
     l_freq = [k for k, _ in sorted(voc.items(), key=lambda item: item[1], reverse=True)]
+    l_removed = []
     for i in range(int(len(l_freq) * percent / 100)):
-        l_freq.pop()
-    for elem in l_freq:
+        l_removed.append(l_freq.pop())
+    for elem in l_removed:
         voc_words_frequent.pop(elem, None)
     return voc_words_frequent
 
@@ -241,25 +240,10 @@ if __name__ == "__main__":
 
     post_types_stats = freq_prob_types(voc, df, 2018, 'model-2018.txt')
 
-    corrects = 0
-
+    # baseline result
     performance(post_types_stats, 'baseline-result.txt')
 
-    # with open('baseline-result.txt', 'a') as f:
-    #     for (i,row) in enumerate(df_year_2019.iterrows()):
-    #         _ ,row = row
-    #         title = row['Title']
-    #         scores = classifier(title, post_types_stats)
-    #         prediction = max(scores,key=scores.get)
-    #         result = 'right' if prediction == row['Post Type'] else 'wrong'
-    #         if result == 'right':
-    #             corrects += 1
-    #         f.write('%d  %s  %s  '%(i + 1, title, prediction))
-    #         for key in scores:
-    #             f.write('%s:  %f  '%(key, scores[key]))
-    #         f.write('%s  %s\n'%(row['Post Type'],result))
-    # print(corrects)
-
+    # stop word result
     s_path = '/Users/pasha/PycharmProjects/Assignment2/stopwords.txt'
     l = [line.rstrip('\n') for line in open(s_path)]
     voc_stop_words = copy.deepcopy(voc)
@@ -268,31 +252,7 @@ if __name__ == "__main__":
     post_types_stats2 = freq_prob_types(voc_stop_words, df, 2018, 'stopword-model.txt')
     performance(post_types_stats2, 'stopword-result.txt')
 
-    # corrects = 0
-
-    # with open('stopword-result.txt', 'a') as f:
-    #     predictions = []
-    #     trues = []
-    #     for (i,row) in enumerate(df_year_2019.iterrows()):
-    #         _ ,row = row
-    #         title = row['Title']
-    #         scores = classifier(title, post_types_stats2)
-    #         prediction = max(scores,key=scores.get)
-    #         predictions.append(prediction)
-    #         trues.append(row['Post Type'])
-    #         result = 'right' if prediction == row['Post Type'] else 'wrong'
-    #         if result == 'right':
-    #             corrects += 1
-    #         f.write('%d  %s  %s  '%(i + 1, title, prediction))
-    #         for key in scores:
-    #             f.write('%s:  %f  '%(key, scores[key]))
-    #         f.write('%s  %s\n'%(row['Post Type'],result))
-    # print(corrects)
-
-    # report = classification_report(trues, predictions, target_names=post_types, output_dict=True)
-    # report2 = precision_recall_fscore_support(trues, predictions, average=None, labels=post_types)
-    # print(report)
-
+    # word length result
     voc_words_length = copy.deepcopy(voc)
     l_word_length = []
     for key in voc_words_length.keys():
@@ -300,83 +260,62 @@ if __name__ == "__main__":
             l_word_length.append(key)
     for elem in l_word_length:
         voc_words_length.pop(elem, None)
-
     post_types_stats3 = freq_prob_types(voc_words_length, df, 2018, 'wordlength-model.txt')
+    performance(post_types_stats3, 'wordlength-result.txt')
 
-    corrects = 0
-    with open('wordlength-result.txt', 'a') as f:
-        predictions = []
-        trues = []
-        for (i, row) in enumerate(df_year_2019.iterrows()):
-            _, row = row
-            title = row['Title']
-            scores = classifier(title, post_types_stats3)
-            prediction = max(scores, key=scores.get)
-            predictions.append(prediction)
-            trues.append(row['Post Type'])
-            result = 'right' if prediction == row['Post Type'] else 'wrong'
-            if result == 'right':
-                corrects += 1
-            f.write('%d  %s  %s  ' % (i + 1, title, prediction))
-            for key in scores:
-                f.write('%s:  %f  ' % (key, scores[key]))
-            f.write('%s  %s\n' % (row['Post Type'], result))
-    print(corrects)
+    # baseline
+    accuracy_base, precision_base, recall_base, f1score_base, corrects_base = performance(post_types_stats)
 
-    # voc_words_freq = copy.deepcopy(voc)
-    # l_freq = []
-    # for word in voc.keys():
-    #     sum_freq = 0
-    #     for post_type in post_types_stats.keys():
-    #         sum_freq += (post_types_stats[post_type][0][word] - 0.5)
-    #         # if (post_types_stats[post_type][0][word] - 0.5) > max_freq:
-    #         #     max_freq = post_types_stats[post_type][0][word] - 0.5
-    #     if sum_freq <= freq:
-    #         l_freq.append(word)
+    # word frequency = 1
+    voc_words_frequency_1 = vocab_frequency(voc, 1)
+    post_types_stats_f_1 = freq_prob_types(voc_words_frequency_1, df, 2018)
+    accuracy_f_1, precision_f_1, recall_f_1, f1score_f_1, corrects_f_1 = performance(post_types_stats_f_1)
 
-    # for elem in l_freq:
-    #     voc_words_freq.pop(elem, None)
+    # word frequency <= 5
+    voc_words_frequency_5 = vocab_frequency(voc, 5)
+    post_types_stats_f_5 = freq_prob_types(voc_words_frequency_5, df, 2018)
+    accuracy_f_5, precision_f_5, recall_f_5, f1score_f_5, corrects_f_5 = performance(post_types_stats_f_5)
 
-    voc_words_frequency = vocab_freqency(voc, 1)
-    post_types_stats4 = freq_prob_types(voc_words_frequency, df, 2018)
+    # word frequency <= 10
+    voc_words_frequency_10 = vocab_frequency(voc, 10)
+    post_types_stats_f_10 = freq_prob_types(voc_words_frequency_10, df, 2018)
+    accuracy_f_10, precision_f_10, recall_f_10, f1score_f_10, corrects_f_10 = performance(post_types_stats_f_10)
 
-    corrects = 0
-    # with open('wordlength-result.txt', 'a') as f:
-    predictions = []
-    trues = []
-    for (i, row) in enumerate(df_year_2019.iterrows()):
-        _, row = row
-        title = row['Title']
-        scores = classifier(title, post_types_stats4)
-        prediction = max(scores, key=scores.get)
-        predictions.append(prediction)
-        trues.append(row['Post Type'])
-        result = 'right' if prediction == row['Post Type'] else 'wrong'
-        if result == 'right':
-            corrects += 1
-        # f.write('%d  %s  %s  '%(i + 1, title, prediction))
-        # for key in scores:
-        #     f.write('%s:  %f  '%(key, scores[key]))
-        # f.write('%s  %s\n'%(row['Post Type'],result))
-    print(corrects)
+    # word frequency <= 15
+    voc_words_frequency_15 = vocab_frequency(voc, 15)
+    post_types_stats_f_15 = freq_prob_types(voc_words_frequency_15, df, 2018)
+    accuracy_f_15, precision_f_15, recall_f_15, f1score_f_15, corrects_f_15 = performance(post_types_stats_f_15)
 
-    voc_words_frequent = vocab_frequent(voc, 15)
-    post_types_stats5 = freq_prob_types(voc_words_frequent, df, 2018)
+    # word frequency <= 20
+    voc_words_frequency_20 = vocab_frequency(voc, 20)
+    post_types_stats_f_20 = freq_prob_types(voc_words_frequency_20, df, 2018)
+    accuracy_f_20, precision_f_20, recall_f_20, f1score_f_20, corrects_f_20 = performance(post_types_stats_f_20)
 
-    corrects = 0
-    predictions = []
-    trues = []
-    for (i, row) in enumerate(df_year_2019.iterrows()):
-        _, row = row
-        title = row['Title']
-        scores = classifier(title, post_types_stats5)
-        prediction = max(scores, key=scores.get)
-        predictions.append(prediction)
-        trues.append(row['Post Type'])
-        result = 'right' if prediction == row['Post Type'] else 'wrong'
-        if result == 'right':
-            corrects += 1
-    print(corrects)
+    # word frequent <= 5
+    voc_words_frequent_5 = vocab_frequent(voc, 5)
+    post_types_stats_t_5 = freq_prob_types(voc_words_frequent_5, df, 2018)
+    accuracy_t_5, precision_t_5, recall_t_5, f1score_t_5, corrects_t_5 = performance(post_types_stats_t_5)
+
+    # word frequent <= 10
+    voc_words_frequent_10 = vocab_frequent(voc, 10)
+    post_types_stats_t_10 = freq_prob_types(voc_words_frequent_10, df, 2018)
+    accuracy_t_10, precision_t_10, recall_t_10, f1score_t_10, corrects_t_10 = performance(post_types_stats_t_10)
+
+    # word frequent <= 15
+    voc_words_frequent_15 = vocab_frequent(voc, 15)
+    post_types_stats_t_15 = freq_prob_types(voc_words_frequent_15, df, 2018)
+    accuracy_t_15, precision_t_15, recall_t_15, f1score_t_15, corrects_t_15 = performance(post_types_stats_t_15)
+
+    # word frequent <= 20
+    voc_words_frequent_20 = vocab_frequent(voc, 20)
+    post_types_stats_t_20 = freq_prob_types(voc_words_frequent_20, df, 2018)
+    accuracy_t_20, precision_t_20, recall_t_20, f1score_t_20, corrects_t_20 = performance(post_types_stats_t_20)
+
+    # word frequent <= 25
+    voc_words_frequent_25 = vocab_frequent(voc, 25)
+    post_types_stats_t_25 = freq_prob_types(voc_words_frequent_25, df, 2018)
+    accuracy_t_25, precision_t_25, recall_t_25, f1score_t_25, corrects_t_25 = performance(post_types_stats_t_25)
+
     # x = [1,2,3,4,5]
     # plt.figure()
     # plt.subplot(1,2,1)
@@ -395,7 +334,15 @@ if __name__ == "__main__":
     # plt.xticks(ticks=x)
     # list_of_reports = report*5
     # list_of_reports = [report]*5
-
+    accuracies = []
+    accuracies.append(accuracy_base)
+    accuracies.append(accuracy_f_1)
+    accuracies.append(accuracy_f_5)
+    accuracies.append(accuracy_f_10)
+    accuracies.append(accuracy_f_15)
+    accuracies.append(accuracy_f_20)
+    x = [len(voc), len(voc_words_frequency_1), len(voc_words_frequency_5), len(voc_words_frequency_10),
+         len(voc_words_frequency_15), len(voc_words_frequency_20)]
     # accuracies = [rep['accuracy'] for rep in list_of_reports]
 
     # precisions = [rep['weighted avg']['precision'] for rep in list_of_reports]
@@ -403,7 +350,7 @@ if __name__ == "__main__":
     # recalls = [rep['weighted avg']['recall'] for rep in list_of_reports]
 
     # f1scores = [rep['weighted avg']['f1-score'] for rep in list_of_reports]
-    # plt.figure()
-    # plt.subplot(1,2,1)
-    # plt.plot(x, accuracies, marker = '*', label='accuracy')
+    plt.figure()
+    plt.subplot(1, 2, 1)
+    plt.plot(x, accuracies, marker='*', label='accuracy')
     # plt.plot(x, precisions, marker = 'o', label='precision')
