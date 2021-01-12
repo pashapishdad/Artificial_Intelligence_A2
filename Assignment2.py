@@ -1,10 +1,7 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jun 10 15:49:55 2020
+# written by Pasha Pishdad
+# Student ID: 40042599
+# Assignment 2
 
-@author: pasha
-"""
 import re
 import pandas as pd
 from collections import Counter
@@ -220,7 +217,7 @@ def performance(post_types_stats, file_name=""):
 
 
 if __name__ == "__main__":
-    f_path = 'hns_2018_2019.csv'
+    f_path = '/Users/pasha/PycharmProjects/Assignment2/hns_2018_2019.csv'
     df = pd.read_csv(f_path)
 
     # extract the year from "created at" column
@@ -316,33 +313,104 @@ if __name__ == "__main__":
     post_types_stats_t_25 = freq_prob_types(voc_words_frequent_25, df, 2018)
     accuracy_t_25, precision_t_25, recall_t_25, f1score_t_25, corrects_t_25 = performance(post_types_stats_t_25)
 
-    accuracies = []
-    accuracies.append(accuracy_base)
-    accuracies.append(accuracy_f_1)
-    accuracies.append(accuracy_f_5)
-    accuracies.append(accuracy_f_10)
-    accuracies.append(accuracy_f_15)
-    accuracies.append(accuracy_f_20)
-    x = [len(voc), len(voc_words_frequency_1), len(voc_words_frequency_5), len(voc_words_frequency_10),
-         len(voc_words_frequency_15), len(voc_words_frequency_20)]
+    # accuracies for frequency
+    accuracies_frequency = []
+    accuracies_frequency.append(accuracy_base)
+    accuracies_frequency.append(accuracy_f_1)
+    accuracies_frequency.append(accuracy_f_5)
+    accuracies_frequency.append(accuracy_f_10)
+    accuracies_frequency.append(accuracy_f_15)
+    accuracies_frequency.append(accuracy_f_20)
+
+    # precisions for frequency
+    precisions_frequency = []
+    precisions_frequency.append(precision_base)
+    precisions_frequency.append(precision_f_1)
+    precisions_frequency.append(precision_f_5)
+    precisions_frequency.append(precision_f_10)
+    precisions_frequency.append(precision_f_15)
+    precisions_frequency.append(precision_f_20)
+
+    # recalls for frequency
+    recalls_frequency = []
+    recalls_frequency.append(recall_base)
+    recalls_frequency.append(recall_f_1)
+    recalls_frequency.append(recall_f_5)
+    recalls_frequency.append(recall_f_10)
+    recalls_frequency.append(recall_f_15)
+    recalls_frequency.append(recall_f_20)
+
+    # f1scores for frequency
+    f1scores_frequency = []
+    f1scores_frequency.append(f1score_base)
+    f1scores_frequency.append(f1score_f_1)
+    f1scores_frequency.append(f1score_f_5)
+    f1scores_frequency.append(f1score_f_10)
+    f1scores_frequency.append(f1score_f_15)
+    f1scores_frequency.append(f1score_f_20)
+
+    # accuracies for top frequent
+    accuracies_frequent = []
+    accuracies_frequent.append(accuracy_base)
+    accuracies_frequent.append(accuracy_t_5)
+    accuracies_frequent.append(accuracy_t_10)
+    accuracies_frequent.append(accuracy_t_15)
+    accuracies_frequent.append(accuracy_t_20)
+    accuracies_frequent.append(accuracy_t_25)
+
+    # precisions for top frequent
+    precisions_frequent = []
+    precisions_frequent.append(precision_base)
+    precisions_frequent.append(precision_t_5)
+    precisions_frequent.append(precision_t_10)
+    precisions_frequent.append(precision_t_15)
+    precisions_frequent.append(precision_t_20)
+    precisions_frequent.append(precision_t_25)
+
+    # recalls for top frequent
+    recalls_frequent = []
+    recalls_frequent.append(recall_base)
+    recalls_frequent.append(recall_t_5)
+    recalls_frequent.append(recall_t_10)
+    recalls_frequent.append(recall_t_15)
+    recalls_frequent.append(recall_t_20)
+    recalls_frequent.append(recall_t_25)
+
+    # f1scores for top frequent
+    f1scores_frequent = []
+    f1scores_frequent.append(f1score_base)
+    f1scores_frequent.append(f1score_t_5)
+    f1scores_frequent.append(f1score_t_10)
+    f1scores_frequent.append(f1score_t_15)
+    f1scores_frequent.append(f1score_t_20)
+    f1scores_frequent.append(f1score_t_25)
+
+    x_freq = [len(voc), len(voc_words_frequency_1), len(voc_words_frequency_5), len(voc_words_frequency_10),
+              len(voc_words_frequency_15), len(voc_words_frequency_20)]
+    x_top = [len(voc), len(voc_words_frequent_5), len(voc_words_frequent_10), len(voc_words_frequent_15),
+             len(voc_words_frequent_20), len(voc_words_frequent_25)]
 
     plt.figure()
     plt.subplot(1, 2, 1)
-    # plt.xticks(ticks=x)
-    # fig, ax = plt.subplots(constrained_layout=True)
     x_temp = [0, 1, 2, 3, 4, 5]
-    plt.xticks(ticks=x_temp, labels=x, rotation=90)
-    # axes1 = plt.gca()
-    # axes2 = axes1.twiny()
-
-    # axes2.set_xticks([20,15,10,5,1,0])
-
-    # axes1.set_xlabel("x-axis 1")
-    # axes2.set_xlabel("x-axis 2")
-    # secax = ax.secondary_xaxis('top', functions=(deg2rad, rad2deg))
-    # secax.set_xlabel('angle [rad]')
-    plt.scatter(x_temp, accuracies, marker='*', label='accuracy')
+    plt.xticks(ticks=x_temp, labels=x_freq, rotation=90)
+    plt.plot(x_temp, accuracies_frequency, marker='D', markersize=13, label='accuracy')
+    plt.plot(x_temp, precisions_frequency, marker='o', markersize=12, label='precision')
+    plt.plot(x_temp, recalls_frequency, marker='s', markersize=11, label='recall')
+    plt.plot(x_temp, f1scores_frequency, marker='^', markersize=10, label='f1score')
     plt.xlabel('remaining words in the vocabulary')
-    plt.ylabel('frequency')
+    plt.ylabel('performance')
+    plt.legend()
+
+    plt.subplot(1, 2, 2)
+    x_temp = [0, 1, 2, 3, 4, 5]
+    plt.xticks(ticks=x_temp, labels=x_top, rotation=90)
+    plt.plot(x_temp, accuracies_frequent, marker='D', markersize=13, label='accuracy')
+    plt.plot(x_temp, precisions_frequent, marker='o', markersize=12, label='precision')
+    plt.plot(x_temp, recalls_frequent, marker='s', markersize=11, label='recall')
+    plt.plot(x_temp, f1scores_frequent, marker='^', markersize=10, label='f1score')
+    plt.xlabel('remaining words in the vocabulary')
+    plt.ylabel('performance')
+    plt.legend()
     plt.tight_layout()
     # plt.plot(x, precisions, marker = 'o', label='precision')
